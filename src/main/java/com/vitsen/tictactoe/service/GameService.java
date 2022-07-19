@@ -2,9 +2,9 @@ package com.vitsen.tictactoe.service;
 
 import com.vitsen.tictactoe.entity.Game;
 import com.vitsen.tictactoe.repository.GameRepository;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +24,7 @@ public class GameService {
   }
 
   public List<Game> findAll() {
-    return gameRepository.findAll().stream()
-        .sorted(Comparator.comparing(Game::getCreatedAt).reversed())
-        .collect(Collectors.toUnmodifiableList());
+    return gameRepository.findAll(Sort.by(Direction.DESC, "createdAt"));
   }
 
   @Transactional
@@ -39,9 +37,12 @@ public class GameService {
   }
 
   private void validate(Game game) {
+    if (game.getName() == null || game.getName().trim().isEmpty())
+      throw new RuntimeException("Name game is null or empty");
+
     boolean isExist = this.findAll().stream()
         .anyMatch(i -> game.getName().equals(i.getName()));
-    if (isExist) throw new RuntimeException();
+    if (isExist) throw new RuntimeException("Game is exist");
   }
 
   private void refresh() {

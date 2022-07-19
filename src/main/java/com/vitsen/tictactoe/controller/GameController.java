@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class GameController {
-
-  private Logger logger = LoggerFactory.getLogger(GameController.class);
 
   private final GameService gameService;
 
@@ -31,6 +31,12 @@ public class GameController {
   @MessageMapping("/lobby/create")
   public void createGame(GameRequestDto lobby) {
     gameService.create(toLobby(lobby));
+  }
+
+  @MessageExceptionHandler
+  @SendTo("/topic/errors")
+  public String handleException(Throwable exception) {
+    return exception.getMessage();
   }
 
   private Game toLobby(GameRequestDto lobby) {
