@@ -19,7 +19,6 @@ import org.springframework.lang.Nullable;
 
 @RedisHash(value = "Game")
 @TypeAlias("Game")
-@Entity
 @Data
 @NoArgsConstructor
 @Builder
